@@ -1,7 +1,13 @@
 const { io } = require ('../index');
+const { comprobarJWT } = require('../helpers/jwt');
 
 io.on('connection', client => {
     console.log('Cliente conectado');
+
+    const [valido, uid] = comprobarJWT(client.handshake.headers['x-token'])
+    
+    if (!valido) {return client.disconnect();}
+    console.log('Cliente autenticado')
 
     client.on('disconnect', () => {
         console.log('cliente desconectado');
