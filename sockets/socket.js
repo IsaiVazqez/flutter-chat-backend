@@ -1,16 +1,24 @@
 const { io } = require ('../index');
 const { comprobarJWT } = require('../helpers/jwt');
+const {usuarioConectado, usuarioDesconectado } = require('../controllers/socket');
 
-io.on('connection', client => {
-    console.log('Cliente conectado');
 
-    const [valido, uid] = comprobarJWT(client.handshake.headers['x-token'])
+io.on('connection', (client) =>  {
+    const [ valido, uid ] = comprobarJWT( client.handshake.headers['x-token'] )
+
+    // Verificar autenticación
+    if ( !valido ) { return client.disconnect(); }
     
-    if (!valido) {return client.disconnect();}
-    console.log('Cliente autenticado')
+    // Cliente autenticado
+    usuarioConectado( uid );
+
+
+    console.log('cliente autenticado')
+
+
 
     client.on('disconnect', () => {
-        console.log('cliente desconectado');
+        usuarioDesconectado(uid);
     });
 
 /*     client.on('disconnect', (payload) => {
